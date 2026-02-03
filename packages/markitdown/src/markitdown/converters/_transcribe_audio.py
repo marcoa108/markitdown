@@ -45,5 +45,10 @@ def transcribe_audio(file_stream: BinaryIO, *, audio_format: str = "wav") -> str
     recognizer = sr.Recognizer()
     with sr.AudioFile(audio_source) as source:
         audio = recognizer.record(source)
-        transcript = recognizer.recognize_google(audio).strip()
+        try:
+            transcript = recognizer.recognize_google(audio).strip()
+        except sr.UnknownValueError:
+            return "[No speech detected]"
+        except sr.RequestError as exc:
+            return f"[Transcription failed: {exc}]"
         return "[No speech detected]" if transcript == "" else transcript
